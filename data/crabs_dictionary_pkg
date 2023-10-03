@@ -1,0 +1,12 @@
+Homework 6: Creating a dictionary for dataset "crabs.csv"
+Columns:
+-Character Columns
+color
+sex
+-Numeric Columns
+frontal_lobe
+rear_width
+carapace_length
+carapac_width
+body_depth
+Latitude
