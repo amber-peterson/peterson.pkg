@@ -1,0 +1,173 @@
+---
+title: "Project Two"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Due Oct. 13 at 11:59 PM. 
+
+For this first part of the exam, you can either use `surveys_complete.csv` or your own data. If you are using your own data, you must have data in which you think you have a numerical predictor variable and a numerical response variable. If you are using `surveys_complete`, you can use weight and hindfoot_length for this.
+
+Save this file in your `projects` directory. You can either save it in a project two subdirectory, or just put it in projects. Either way is fine.
+
+
+1) Load in your data. Which variable will you be using as a predictor, and which as a response? (5 pts)
+
+```{r}
+library(tidyverse)
+surveys <- read_csv("surveys.csv")
+surveys_complete <- na.omit(surveys)
+
+#My predicter variable will be weight and the respone will be hindfoot length.
+
+```
+
+```
+# Answer which column is predictor and which is response
+```
+
+2) Plot the two against each other with a scatter plot. Do the data appear to be related linearly? (5 pts)
+
+
+```{r}
+ggplot(surveys_complete, aes(x=weight, y= hindfoot_length))+ geom_point()
+```
+
+```
+#No the data does not appear to be linear.
+```
+
+
+3) Fit the linear model. View the summary. (5 pts)
+
+
+```{r}
+model_fit <- lm(weight ~ hindfoot_length, data= surveys_complete)
+summary(model_fit)
+```
+
+4) Does the summary make sense when you compare it to the plot you made? Does our model have good predictive power? Evaluate the residual standard error, intercept, and R-Squared in particular. Would you say your predictor predicts the response?  (10 pts)
+
+
+```
+# Yes the summary generally makes sense when compared to the plot, but with a an R-squared of 0.4673, the model does not have the best predictive power because that means only %46 of hindfoot length can be explained by weight. Also with a y-intercept of -32.87, the model predicts that when hindfoot length is zero, the individual would be -33 grams in weight which is not possible. The residual standard error is also a high amount of deviation from the regression line, so overall, I would not say that weight predicts hindfoot length. 
+
+```
+
+
+5) Plot the model on the graph. Increase the size of the text so it is comfortably readable at 5 feet. Make sure axis labels are readable and not overlapping with one another. (5 pts)
+
+``` {r}
+ggplot(surveys_complete, aes(x=weight, y=hindfoot_length)) +geom_point() + geom_smooth(method = "lm", size= 0.5) + theme(text= element_text(size=30))
+
+
+```
+
+
+6) Check the normality of the residuals. Do they look OK? Are we violating assumptions? (5 pts)
+
+```{r}
+
+augmented_fit<- broom::augment(model_fit)
+qqnorm(augmented_fit$.resid)
+
+#Yes we are violating the assumption that the residuals are normally distributed when that is not the case when looking at the Q-Q Plot. The residuals in the plot are clearly not linear, which means they are not normal.
+```
+
+Why is normality of residuals important? 
+
+```{r}
+
+#The normality of residuals is important because the accuracy of predictions made is dependent on normally distributed residuals. If the residuals are nonnormal, predictions based on the model are more likely to be inaccurate, and this lowers the confidence in the model.
+```
+
+7) If you are using `surveys_complete`: Is there interspecific variation in the linear model? Hint: look at our prior work with facet plots. (15 pts) 
+
+If you are *not* using  `surveys_complete`: Do you think there are groupings within your data that may have a separate linear model? Try grouping the data by that variable and redoing the lm. If this would not make sense for your data, you may also attempt to do multiple predictor variables. (15 pts)
+
+```{r}
+ggplot(data= surveys_complete, mapping= aes(x=weight, y=hindfoot_length)) +geom_line() + geom_smooth(method= "lm") + facet_wrap(facets= vars(species_id))
+
+#Yes, there is variation in how weight interacts with hindfoot length between species. The plot below depicts each species ID with weight plotted as a predicter and hindfoot length as the response; it is clear that the relationship between the predicter and response varies in different species
+```
+
+## Part Two
+
+In this portion, you are free to use your own data if you have a categorical predictor variable and a response variable. Otherwise, you may use the columns sex and weight in `surveys_complete`
+
+1) First, plot the data grouped by sex (5 pts)
+
+```{r}
+
+surveys_complete %>% 
+  group_by(sex) %>% 
+  ggplot(aes(x=weight, y=hindfoot_length, color=sex)) + geom_point() + scale_color_manual(values= c("pink","blue"))
+```
+
+2) Try an ANOVA of this data (5 pt)
+
+```{r}
+model_fit <- lm(hindfoot_length ~ weight + sex, surveys_complete)
+anova(model_fit)
+```
+
+3) How about a linear model? What information does this give you that an ANOVA can't? (5 pts)
+
+
+```{r}
+model_fit <- lm(hindfoot_length ~ weight + sex, surveys_complete)
+summary(model_fit)
+```
+
+```
+#The linear model tells of R squared, which is the percentage of the response that is determined by the two predictors. The ANOVA does not tell us whether or not sex and weight predict hindfoot_length while the linear model does. This also gives us the residual standard error, which tells us how much the data deviates from normal distribution. 
+```
+
+3) Plot the lm with the data, with points colored by sex. (10 pts)
+
+
+```{r}
+surveys_complete %>% 
+  group_by(sex) %>% 
+  ggplot(aes(x=weight, y=hindfoot_length, color=sex)) + geom_point() + geom_smooth(method = "lm")+ scale_color_manual(values= c("pink","blue"))
+```
+
+4) Choose any model we've looked at so far, but use two predictor variables. Perform an LM, plot the results, and state if this changes your interpretation of the relationship between variables (10 pts)
+
+```{r}
+model_fit<- lm(hindfoot_length~ weight + sex, surveys_complete)
+summary(model_fit)
+```
+
+```{r}
+surveys_complete %>% 
+  group_by(sex) %>% 
+  ggplot(aes(x=weight, y=hindfoot_length, color=sex)) + geom_point() + geom_smooth(method = "lm")+ scale_color_manual(values= c("pink","blue"))
+
+```
+
+```
+# With the original plot, it was very hard to see a clear relationship between weight and hindfoot_length, but looking at the plot with sex also used as a predicter, its clear that there is somewhat of a relationship between weight/sex and hindfoot_length where male hindfoot_length increases more as weight increases compared to female hindfoot_length. Males generally have a longer hindfoot than females. 
+```
+
+## Part Three
+
+
+1) Add and commit this document (5 pts)
+
+```
+#Commands here
+```
+
+2) Push your changes to github (10 pts)
+
+```
+#Commands here
+```
+
+
+
+# MS students
+
+My expectation is that you'll do this with your own data. If any part of this doesn't make sense with your data, please get in touch ASAP so we can work it out.
